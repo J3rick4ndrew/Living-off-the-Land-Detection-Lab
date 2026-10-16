@@ -1,0 +1,25 @@
+title: Suspicious Execution from NTFS Alternate Data Stream
+id: 5a74070a-4a6f-409e-baad-0f9c464e0624
+status: experimental
+description: Detects execution of scripts or executables hidden within an NTFS Alternate Data Stream (ADS), a common defense evasion technique abused by Living-off-the-Land binaries.
+references:
+    - https://attack.mitre.org/techniques/T1564/004/
+author: Jerick Andrew (J3rick4ndrew)
+date: 2026-10-15
+tags:
+    - attack.defense_evasion
+    - attack.t1564.004
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection_sysmon_eid1:
+        EventID: 1
+    selection_cmdline_stream:
+        CommandLine|contains: '-Stream '
+    selection_cmdline_colon:
+        CommandLine|re: ':[a-zA-Z0-9_\-\.]+\.(ps1|exe|vbs|bat|cmd|dll)'
+    condition: selection_sysmon_eid1 and (selection_cmdline_stream or selection_cmdline_colon)
+falsepositives:
+    - Legitimate administrative scripts managing NTFS file streams
+level: high
