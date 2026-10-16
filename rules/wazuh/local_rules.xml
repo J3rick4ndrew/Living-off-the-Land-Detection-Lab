@@ -1,0 +1,52 @@
+<!-- ===================================================================== -->
+<!-- Living-off-the-Land (LotL) Custom Detection Rules                     -->
+<!-- Author: Jerick Andrew                                                 -->
+<!-- Environment: Wazuh v4.14 / Windows Server 2022 / Sysmon v15.22        -->
+<!-- ===================================================================== -->
+
+<group name="windows,sysmon,lotl_defense,">
+
+  <!-- Rule 100060: Detect Certutil Remote File Download (MITRE T1105) -->
+  <rule id="100060" level="10">
+    <if_sid>100002</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\certutil\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(-urlcache|-split|\/urlcache|\/split)</field>
+    <description>LotL Ingress: Suspicious Certutil File Download (MITRE T1105)</description>
+    <mitre>
+      <id>T1105</id>
+    </mitre>
+  </rule>
+
+  <!-- Rule 100061: Detect Bitsadmin File Transfer Job (MITRE T1105 / T1197) -->
+  <rule id="100061" level="10">
+    <if_sid>100002</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\bitsadmin\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(\/transfer|\/addfile|\/create)</field>
+    <description>LotL Ingress: Suspicious Bitsadmin File Download (MITRE T1105 / T1197)</description>
+    <mitre>
+      <id>T1105</id>
+      <id>T1197</id>
+    </mitre>
+  </rule>
+
+  <!-- Rule 100062: Detect NTFS Alternate Data Stream Payload Creation (MITRE T1564.004) -->
+  <rule id="100062" level="12">
+    <if_group>sysmon_eid11_detections</if_group>
+    <field name="win.eventdata.targetFilename" type="pcre2">(?i)\:[a-zA-Z0-9_\-\.]+\.(ps1|exe|vbs|bat|cmd|dll)$</field>
+    <description>LotL Evasion: Alternate Data Stream (ADS) Executable Creation (MITRE T1564.004)</description>
+    <mitre>
+      <id>T1564.004</id>
+    </mitre>
+  </rule>
+
+  <!-- Rule 100063: Detect Process Execution from NTFS Alternate Data Stream (MITRE T1564.004) -->
+  <rule id="100063" level="12">
+    <if_group>sysmon_eid1_detections</if_group>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(-stream\s+|:[a-zA-Z0-9_\-\.]+\.(ps1|exe|vbs|bat|cmd|dll))</field>
+    <description>LotL Evasion: Process Execution from NTFS Alternate Data Stream (MITRE T1564.004)</description>
+    <mitre>
+      <id>T1564.004</id>
+    </mitre>
+  </rule>
+
+</group>
