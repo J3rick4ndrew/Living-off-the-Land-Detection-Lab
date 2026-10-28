@@ -160,3 +160,6 @@ Living-off-the-Land-Detection-Lab/
 ├── LICENSE
 └── README.md
 ```
+
+## 👤 Author
+**Jerick Andrew S**  
